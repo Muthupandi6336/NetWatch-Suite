@@ -105,8 +105,7 @@ if st.button("Show System Config"):
 
 # 6. TRAFFIC AUDITOR
 st.header("6. 🌐 Traffic & Connection Auditor")
-if st.button("Audit Active Connections"): 
-    st.code(run_command(["ss", "-tunlp"]))
+if st.button("Audit Active Connectioncommand(["ss", "-tunlp"]))
 
 
 # 7. DNS & LATENCY
@@ -148,18 +147,4 @@ if st.button("Scan Common Ports"):
     for port, service in ports_to_scan.items():
         # Create a tiny network socket wrapper to test the connection
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.settimeout(1.0) # Don't hang forever if blocked
-        
-        # Try connecting to the port
-        result = s.connect_ex((target_host, port))
-        
-        if result == 0:
-            status = "🔓 OPEN (No Firewall Restriction)"
-        else:
-            status = "🔒 FILTERED / CLOSED (Firewall Protected)"
-            
-        results.append({"Port": port, "Service": service, "Security Status": status})
-        s.close()
-        
-    # Display the results as a clean table on the web app
-    st.table(results)
+        s.settim
