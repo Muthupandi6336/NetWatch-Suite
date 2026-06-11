@@ -123,5 +123,21 @@ if st.button("Audit Interface"):
 
 # 9. FIREWALL STATUS
 st.header("9. 🛡️ Firewall Security Status")
-if st.button("Check Firewall"): 
-    st.code(run_command(["sudo", "ufw", "status", "verbose"]))
+
+if st.button("Check Firewall"):
+    import os
+    import subprocess
+
+    # Check if the app is running on the Streamlit Cloud environment
+    if "mount" in os.getcwd():
+        st.warning("🔒 Administrative 'sudo' commands are disabled in the cloud environment. Run this application locally on your host machine to audit local firewall parameters.")
+    else:
+        try:
+            # This runs normally when you run it locally on Linux Mint
+            res = subprocess.run(["sudo", "ufw", "status", "verbose"], capture_output=True, text=True)
+            if res.stdout:
+                st.code(res.stdout)
+            else:
+                st.code(res.stderr)
+        except Exception as e:
+            st.error(f"Error running local firewall check: {e}")
