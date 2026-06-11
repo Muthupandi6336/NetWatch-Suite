@@ -1,0 +1,4 @@
+iputils-ping
+iproute2
+dnsutils
+traceroute
