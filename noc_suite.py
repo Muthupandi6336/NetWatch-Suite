@@ -121,23 +121,45 @@ if st.button("Audit Interface"):
     st.code(run_command(["ip", "-s", "link"]))
 
 
-# 9. FIREWALL STATUS
-st.header("9. 🛡️ Firewall Security Status")
+# 9. FIREWALL STATUS (Web-Compatible Port Audit)
+st.header("9. 🛡️ Firewall Security Status (External Port Audit)")
 
-if st.button("Check Firewall"):
-    import os
-    import subprocess
+# Let the user input a host to test (defaults to Google DNS to test functionality)
+target_host = st.text_input("Enter Target Host IP or Domain to Audit:", "8.8.8.8")
 
-    # Check if the app is running on the Streamlit Cloud environment
-    if "mount" in os.getcwd():
-        st.warning("🔒 Administrative 'sudo' commands are disabled in the cloud environment. Run this application locally on your host machine to audit local firewall parameters.")
-    else:
-        try:
-            # This runs normally when you run it locally on Linux Mint
-            res = subprocess.run(["sudo", "ufw", "status", "verbose"], capture_output=True, text=True)
-            if res.stdout:
-                st.code(res.stdout)
-            else:
-                st.code(res.stderr)
-        except Exception as e:
-            st.error(f"Error running local firewall check: {e}")
+if st.button("Scan Common Ports"):
+    import socket
+    
+    # Common standard ports to check firewall filtering
+    ports_to_scan = {
+        21: "FTP",
+        22: "SSH",
+        23: "Telnet",
+        53: "DNS",
+        80: "HTTP",
+        443: "HTTPS",
+        3306: "MySQL",
+        8080: "HTTP-Alt"
+    }
+    
+    st.info(f"Auditing external firewall rules for: {target_host}...")
+    
+    results = []
+    for port, service in ports_to_scan.items():
+        # Create a tiny network socket wrapper to test the connection
+        s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        s.settimeout(1.0) # Don't hang forever if blocked
+        
+        # Try connecting to the port
+        result = s.connect_ex((target_host, port))
+        
+        if result == 0:
+            status = "🔓 OPEN (No Firewall Restriction)"
+        else:
+            status = "🔒 FILTERED / CLOSED (Firewall Protected)"
+            
+        results.append({"Port": port, "Service": service, "Security Status": status})
+        s.close()
+        
+    # Display the results as a clean table on the web app
+    st.table(results)
