@@ -103,9 +103,16 @@ if st.button("Show System Config"):
     st.code(run_command(["ip", "-br", "addr"]))
 
 
-# 6. TRAFFIC AUDITOR
+# 6. Traffic & Connection Auditor
 st.header("6. 🌐 Traffic & Connection Auditor")
-if st.button("Audit Active Connectioncommand(["ss", "-tunlp"]))
+if st.button("Audit Active Connections", key="connections_audit_btn"):
+    try:
+        res = subprocess.run(["ss", "-tuln"], capture_output=True, text=True, timeout=5)
+        st.code(res.stdout if res.stdout else res.stderr)
+    except FileNotFoundError:
+        st.error("The 'ss' binary was not found. System utilities might be restricted.")
+    except Exception as e:
+        st.error(f"Execution error: {e}")
 
 
 # 7. DNS & LATENCY
