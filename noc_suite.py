@@ -127,16 +127,16 @@ if st.button("Audit Interface"):
     st.code(run_command(["ip", "-s", "link"]))
 
 
-# 9. FIREWALL STATUS (Web-Compatible Port Audit)
+# ==========================================
+# 9. FIREWALL SECURITY STATUS (WEB SAFE)
+# ==========================================
 st.header("9. 🛡️ Firewall Security Status (External Port Audit)")
+st.write("Audits external security postures by examining open and filtered connection states over standard deployment matrices.")
 
-# Let the user input a host to test (defaults to Google DNS to test functionality)
-target_host = st.text_input("Enter Target Host IP or Domain to Audit:", "8.8.8.8")
+target_host = st.text_input("Enter Target Host IP or Domain to Audit:", "8.8.8.8", key="firewall_target_input")
 
-if st.button("Scan Common Ports"):
-    import socket
-    
-    # Common standard ports to check firewall filtering
+# Using a distinct label and clear unique key string to permanently solve the duplicate ID error
+if st.button("Run Firewall Port Audit", key="final_firewall_audit_secure_key"):
     ports_to_scan = {
         21: "FTP",
         22: "SSH",
@@ -148,10 +148,25 @@ if st.button("Scan Common Ports"):
         8080: "HTTP-Alt"
     }
     
-    st.info(f"Auditing external firewall rules for: {target_host}...")
+    st.info(f"Auditing network-level rules for target asset: {target_host}...")
     
     results = []
     for port, service in ports_to_scan.items():
-        # Create a tiny network socket wrapper to test the connection
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.settim
+        s.settimeout(1.2)
+        
+        result = s.connect_ex((target_host, port))
+        
+        if result == 0:
+            status = "🔓 OPEN (No Firewall Restriction)"
+        else:
+            status = "🔒 FILTERED / CLOSED (Firewall Protected)"
+            
+        results.append({
+            "Port Reference": port, 
+            "Target Service": service, 
+            "Audited State": status
+        })
+        s.close()
+        
+    st.table(results)
